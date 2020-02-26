@@ -1,14 +1,22 @@
 PODS:
-  - SAParallaxViewControllerSwift (1.1.1)
+  - MisterFusion (2.0.1)
+  - SABlurImageView (3.0.0)
+  - SAParallaxViewControllerSwift (2.0.0):
+    - MisterFusion
+    - SABlurImageView
 
 DEPENDENCIES:
   - SAParallaxViewControllerSwift (from `../`)
 
 EXTERNAL SOURCES:
   SAParallaxViewControllerSwift:
-    :path: ../
+    :path: "../"
 
 SPEC CHECKSUMS:
-  SAParallaxViewControllerSwift: ac4be9f288aaf6a6b7cdf4ecede0569863c21235
+  MisterFusion: d42cac7afe8318c282bcda93396eba0aef45d30e
+  SABlurImageView: 7003ca28ded502c984846374a117f88a287d9faf
+  SAParallaxViewControllerSwift: 04939b077ef0a563be74fed16cfc0688900a3c09
 
-COCOAPODS: 0.36.1
+PODFILE CHECKSUM: d35a45f146416c6f7fd66ee848bba9b490f4a723
+
+COCOAPODS: 1.1.0.rc.2

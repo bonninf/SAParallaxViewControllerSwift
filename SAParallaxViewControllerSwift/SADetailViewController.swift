@@ -7,49 +7,52 @@
 //
 
 import UIKit
+import SABlurImageView
 
-public class SADetailViewController: UIViewController {
+open class SADetailViewController: UIViewController {
+    fileprivate struct Const {
+        static let headerViewHeight: CGFloat = 44
+    }
+    
+    open var trantisionContainerView: SATransitionContainerView?
+    open var imageView = SABlurImageView()
+    
+    open var headerView: UIView?
+    open var closeButton: UIButton?
+    fileprivate var headerColorView: UIView?
+    fileprivate var headerImageView: UIImageView?
+    fileprivate var headerContainerView: UIView?
+    fileprivate var blurImageView: UIImageView?
 
-    public var trantisionContainerView: SATransitionContainerView?
-    public var imageView = UIImageView()
-    
-    public var headerView: UIView?
-    public var closeButton: UIButton?
-    private var headerColorView: UIView?
-    private var headerImageView: UIImageView?
-    private var headerContainerView: UIView?
-    private var blurImageView: UIImageView?
-    
-    private let kHeaderViewHeight: CGFloat = 44
-    
-    public override func viewDidLoad() {
+    open override func viewDidLoad() {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
-        view.backgroundColor = .whiteColor()
+        view.backgroundColor = .white
         
-        let width = UIScreen.mainScreen().bounds.size.width
+        let width = UIScreen.main.bounds.size.width
         imageView.image = trantisionContainerView?.containerView?.imageView.image
         if let imageSize = imageView.image?.size {
             let height = width * imageSize.height / imageSize.width
-            imageView.autoresizingMask = .None
+            imageView.autoresizingMask = UIViewAutoresizing()
             imageView.frame = CGRect(x: 0, y: 0, width: width, height: height)
             view.addSubview(imageView)
         }
         
-        let headerContainerView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: width, height: kHeaderViewHeight))
+
+        let headerContainerView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: width, height: Const.headerViewHeight))
         headerContainerView.alpha = 0.0
         headerContainerView.clipsToBounds = true
         view.addSubview(headerContainerView)
         self.headerContainerView = headerContainerView
         
-        let blurImageView = UIImageView(frame: imageView.bounds)
-        blurImageView.image = imageView.image?.blur(20.0)
+        let blurImageView = SABlurImageView(frame: imageView.bounds)
+        blurImageView.addBlurEffect(20.0)
         headerContainerView.addSubview(blurImageView)
         self.blurImageView = blurImageView
         
         let headerColorView = UIView(frame: headerContainerView.bounds)
-        headerColorView.backgroundColor = .blackColor()
+        headerColorView.backgroundColor = .black
         headerColorView.alpha = 0.5
         headerContainerView.addSubview(headerColorView)
         self.headerColorView = headerColorView
@@ -58,42 +61,37 @@ public class SADetailViewController: UIViewController {
         headerContainerView.addSubview(headerView)
         self.headerView = headerView
         
-        let closeButton = UIButton(frame: CGRect(x: 0.0, y: 0.0, width: kHeaderViewHeight, height: kHeaderViewHeight))
-        closeButton.setTitle("X", forState: .Normal)
-        closeButton.titleLabel?.textColor = .whiteColor()
-        closeButton.addTarget(self, action: "closeAction:", forControlEvents: .TouchUpInside)
+        let closeButton = UIButton(frame: CGRect(x: 0.0, y: 0.0, width: Const.headerViewHeight, height: Const.headerViewHeight))
+        closeButton.setTitle("×", for: UIControlState())
+        closeButton.titleLabel?.font = .systemFont(ofSize: Const.headerViewHeight)
+        closeButton.titleLabel?.textColor = .white
+        closeButton.addTarget(self, action: #selector(SADetailViewController.closeAction(_:)), for: .touchUpInside)
         headerView.addSubview(closeButton)
         self.closeButton = closeButton
     }
     
-    public override func viewDidAppear(animated: Bool) {
+    open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        UIView.animateWithDuration(0.25, delay: 0.0, options: .CurveEaseIn, animations: {
-            
+        UIView.animate(withDuration: 0.25, delay: 0.0, options: .curveEaseIn, animations: {
             self.headerContainerView?.alpha = 1.0
-            
-        }, completion: { (finished) in })
+        }, completion: nil)
     }
     
-    public override func didReceiveMemoryWarning() {
+    open override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-    public override func prefersStatusBarHidden() -> Bool {
+    open override var prefersStatusBarHidden : Bool {
         return true
     }
     
-    public func closeAction(button: UIButton) {
-        UIView.animateWithDuration(0.25, delay: 0.0, options: .CurveEaseIn, animations: {
-            
+    open func closeAction(_ button: UIButton) {
+        UIView.animate(withDuration: 0.25, delay: 0.0, options: .curveEaseIn, animations: {
             self.headerContainerView?.alpha = 0.0
-            
-        }, completion: { (finished) in
-            
-            self.dismissViewControllerAnimated(true, completion: nil)
-                
+        }, completion: { _ in
+            self.dismiss(animated: true, completion: nil)
         })
     }
 }

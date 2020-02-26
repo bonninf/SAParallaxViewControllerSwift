@@ -8,16 +8,16 @@
 
 import UIKit
 
-public class SATransitionContainerView: UIView {
+open class SATransitionContainerView: UIView {
 
-    public var views = [UIView]()
-    public var viewInitialPositions = [CGPoint]()
-    public var imageViewInitialFrame: CGRect = .zeroRect
-    public var blurImageViewInitialFrame: CGRect = .zeroRect
-    public var containerViewInitialFrame: CGRect = .zeroRect
-    public var containerView: SAParallaxContainerView?
+    open var views: [UIView] = []
+    open var viewInitialPositions: [CGPoint] = []
+    open var imageViewInitialFrame: CGRect = .zero
+    open var blurImageViewInitialFrame: CGRect = .zero
+    open var containerViewInitialFrame: CGRect = .zero
+    open var containerView: SAParallaxContainerView?
     
-    public required init(coder aDecoder: NSCoder) {
+    public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
     
@@ -25,89 +25,88 @@ public class SATransitionContainerView: UIView {
         super.init(frame: frame)
     }
     
-    public func setViews(#cells: [SAParallaxViewCell], view: UIView) {
-        for cell in cells {
-            let point = cell.superview!.convertPoint(cell.frame.origin, toView:view)
+    open func setViews(_ cells: [SAParallaxViewCell], view: UIView) {
+        cells.forEach {
+            guard let point = $0.superview?.convert($0.frame.origin, to:view) else { return }
             viewInitialPositions.append(point)
             
-            if cell.selected {
-                let containerView = SAParallaxContainerView(frame: cell.containerView.bounds)
+            if $0.isSelected {
+                let containerView = SAParallaxContainerView(frame: $0.containerView.bounds)
                 containerView.frame.origin = point
                 containerView.clipsToBounds = true
-                containerView.backgroundColor = .whiteColor()
+                containerView.backgroundColor = .white
                 containerViewInitialFrame = containerView.frame
                 
-                if let image = cell.containerView.imageView.image {
+                if let image = $0.containerView.imageView.image {
                     containerView.setImage(image)
                 }
-                if let image = containerView.imageView.image {
-                    containerView.imageView.frame = cell.containerView.imageView.frame
+                if let _ = containerView.imageView.image {
+                    containerView.imageView.frame = $0.containerView.imageView.frame
                     imageViewInitialFrame = containerView.imageView.frame
                 }
                 
-                if let bluredImage = containerView.blurImageView.image {
-                    containerView.blurImageView.frame = cell.containerView.blurImageView.frame
+                if let _ = containerView.blurImageView.image {
+                    containerView.blurImageView.frame = $0.containerView.blurImageView.frame
                     blurImageViewInitialFrame = containerView.blurImageView.frame;
                 }
                 
                 views.append(containerView)
                 addSubview(containerView)
                 self.containerView = containerView
-            } else {
-                let imageView = cell.screenShot()
-                imageView.frame.origin = point
-                views.append(imageView)
-                addSubview(imageView)
+                return
             }
+            
+            let imageView = $0.screenShot()
+            imageView.frame.origin = point
+            views.append(imageView)
+            addSubview(imageView)
         }
     }
     
-    public func openAnimation() {
-        if let yPositionContainer = containerView?.frame.origin.y, containerViewHeight = containerView?.frame.size.height {
-            let height = frame.size.height
-            
-            let distanceToTop = yPositionContainer
-            let distanceToBottom = height - (yPositionContainer + containerViewHeight)
-            
-            for view in views {
-                if view != containerView {
-                    var frame = view.frame
-                    
-                    if frame.origin.y < yPositionContainer {
-                        frame.origin.y -= distanceToTop
-                        view.frame = frame
-                    } else {
-                        frame.origin.y += distanceToBottom
-                        view.frame = frame
-                    }
+    open func openAnimation() {
+        guard
+            let yPositionContainer = containerView?.frame.origin.y,
+            let containerViewHeight = containerView?.frame.size.height
+        else { return }
+        let height = frame.size.height
+        
+        let distanceToTop = yPositionContainer
+        let distanceToBottom = height - (yPositionContainer + containerViewHeight)
+        
+        views.forEach {
+            if $0 != containerView {
+                var frame = $0.frame
+                if frame.origin.y < yPositionContainer {
+                    frame.origin.y -= distanceToTop
                 } else {
-                    if let containerView = containerView {
-                        containerView.frame = bounds
-                        containerView.imageView.frame = containerView.imageView.bounds
-                        var rect = containerView.blurContainerView.frame
-                        rect.origin.y = height - rect.size.height
-                        containerView.blurContainerView.frame = rect
-                    }
+                    frame.origin.y += distanceToBottom
                 }
+                $0.frame = frame
+                return
             }
+            guard let containerView = containerView else { return }
+            containerView.frame = bounds
+            containerView.imageView.frame = containerView.imageView.bounds
+            var rect = containerView.blurContainerView.frame
+            rect.origin.y = height - rect.size.height
+            containerView.blurContainerView.frame = rect
         }
     }
     
-    public func closeAnimation() {
-        for (index, view) in enumerate(views) {
-            if view != containerView {
-                let point = self.viewInitialPositions[index]
-                view.frame.origin = point
-            } else {
-                containerView?.frame = containerViewInitialFrame
-                containerView?.imageView.frame = imageViewInitialFrame
-                containerView?.blurImageView.frame = blurImageViewInitialFrame
-                if let containerView = containerView {
-                    var rect = containerView.blurContainerView.frame
-                    rect.origin.y = containerView.frame.size.height - rect.size.height
-                    containerView.blurContainerView.frame = rect
-                }
+    open func closeAnimation() {
+        views.enumerated().forEach {
+            if $0.element != containerView {
+                let point = self.viewInitialPositions[$0.offset]
+                $0.element.frame.origin = point
+                return
             }
+            containerView?.frame = containerViewInitialFrame
+            containerView?.imageView.frame = imageViewInitialFrame
+            containerView?.blurImageView.frame = blurImageViewInitialFrame
+            guard let containerView = containerView else { return }
+            var rect = containerView.blurContainerView.frame
+            rect.origin.y = containerView.frame.size.height - rect.size.height
+            containerView.blurContainerView.frame = rect
         }
     }
 }

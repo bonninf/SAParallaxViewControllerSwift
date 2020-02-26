@@ -17,6 +17,8 @@ SAParallaxViewControllerSwift realizes parallax scrolling with blur effect. In a
 - [x] Parallax scrolling
 - [x] Parallax scrolling with blur accessory view
 - [x] Seamlees opening transition
+- [x] Support Swift2.3
+- [x] Support Swift3
 
 ## Installation
 
@@ -29,28 +31,28 @@ it, simply add the following line to your Podfile:
 
 #### Manually
 
-Add the [SAParallaxViewControllerSwift](./SAParallaxViewControllerSwift) directory to your project. 
+Add the [SAParallaxViewControllerSwift](./SAParallaxViewControllerSwift) directory to your project.
 
 ## Usage
 
 If you install from cocoapods, You have to white `import SAParallaxViewControllerSwift`.
 
-Extend `SAParallaxViewController` like this. 
+Extend `SAParallaxViewController` like this.
 
 ```swift
 class ViewController: SAParallaxViewController {
     override init() {
         super.init()
     }
-    
+
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
-    
+
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
     }
@@ -61,9 +63,9 @@ If you want to use `UICollectionViewDataSource`, implement extension like this. 
 
 ```swift
 extension ViewController: UICollectionViewDataSource {
-    override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = super.collectionView(collectionView, cellForItemAtIndexPath: indexPath) as SAParallaxViewCell
-        
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as! SAParallaxViewCell
+
         let index = indexPath.row % 6
         let imageName = String(format: "image%d", index + 1)
         if let image = UIImage(named: imageName) {
@@ -76,7 +78,7 @@ extension ViewController: UICollectionViewDataSource {
         label.textColor = .whiteColor()
         label.font = .systemFontOfSize(30)
         cell.containerView.accessoryView.addSubview(label)
-        
+
         return cell
     }
 }
@@ -88,19 +90,18 @@ You must copy `cell.containerView` to `viewController.trantisionContainerView` b
 
 ```swift
 extension ViewController: UICollectionViewDelegate {
-    override func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-        super.collectionView(collectionView, didSelectItemAtIndexPath: indexPath)
-        
-        if let cells = collectionView.visibleCells() as? [SAParallaxViewCell] {
-            let containerView = SATransitionContainerView(frame: view.bounds)
-            containerView.setViews(cells: cells, view: view)
-            
-            let viewController = DetailViewController()
-            viewController.transitioningDelegate = self
-            viewController.trantisionContainerView = containerView
-            
-            self.presentViewController(viewController, animated: true, completion: nil)
-        }
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        super.collectionView(collectionView, didSelectItemAt: indexPath)
+
+        guard let cells = collectionView.visibleCells as? [SAParallaxViewCell] else { return }
+        let containerView = SATransitionContainerView(frame: view.bounds)
+        containerView.setViews(cells, view: view)
+
+        let viewController = DetailViewController()
+        viewController.transitioningDelegate = self
+        viewController.trantisionContainerView = containerView
+
+        present(viewController, animated: true, completion: nil)
     }
 }
 ```
@@ -114,15 +115,15 @@ class DetailViewController: SADetailViewController {
     override init() {
         super.init()
     }
-    
+
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
-    
+
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
     }
@@ -134,24 +135,24 @@ class DetailViewController: SADetailViewController {
 You can change parallax start position with function of `cell.containerView`.
 
 ```swift
-func setParallaxStartPosition(#y: Float)
+func setParallaxStartPosition(#y: CGFloat)
 ```
 
 You can change height of `cell.containerView.accessoryView`.
 
 ```swift
-func setAccessoryViewHeight(height: Float)
+func setAccessoryViewHeight(height: CGFloat)
 ```
 
 You can change blur size of `cell.containerView.accessoryView`.
 
 ```swift  
-func setBlurSize(size :Float)
+func setBlurSize(size: CGFloat)
 ```
 
 You can change blur color of `cell.containerView.accessoryView`.
 
-```swift 
+```swift
 func setBlurColor(color: UIColor)
 ```
 
@@ -163,10 +164,11 @@ func setBlurColorAlpha(alpha: CGFloat)
 
 ## Requirements
 
-- Xcode 6.3 or greater
-- iOS7.0(manually only) or greater
+- Xcode 8.0-beta or greater
+- iOS 8.0 or greater
 - ARC
-- Accelerate.framework
+- [SABlurImageView](https://github.com/szk-atmosphere/SABlurImageView)
+- [MisterFusion](https://github.com/szk-atmosphere/MisterFusion)
 
 ## Author
 
@@ -175,4 +177,3 @@ Taiki Suzuki, s1180183@gmail.com
 ## License
 
 SAParallaxViewControllerSwift is available under the MIT license. See the LICENSE file for more info.
-

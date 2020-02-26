@@ -7,112 +7,105 @@
 //
 
 import UIKit
+import MisterFusion
 
-public let kParallaxViewCellReuseIdentifier = "Cell"
-
-public class SAParallaxViewController: UIViewController {
+open class SAParallaxViewController: UIViewController {
     
-    public var collectionView = UICollectionView(frame: .zeroRect, collectionViewLayout: SAParallaxViewLayout())
+    open static let parallaxViewCellReuseIdentifier = "ParallaxViewCellReuseIdentifier"
     
-    private let transitionManager = SATransitionManager()
+    open var collectionView = UICollectionView(frame: .zero, collectionViewLayout: SAParallaxViewLayout())
     
-    public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
+    fileprivate let transitionManager = SATransitionManager()
+    
+    public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
 
-    public required init(coder aDecoder: NSCoder) {
+    public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
     
-    public override func viewDidLoad() {
+    open override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        view.backgroundColor = .whiteColor()
+        view.backgroundColor = .white
         
-        NSLayoutConstraint.applyAutoLayout(view, target: collectionView, top: 0.0, left: 0.0, right: 0.0, bottom: 0.0, height: nil, width: nil)
+        view.addLayoutSubview(collectionView, andConstraints:
+            collectionView.top,
+            collectionView.left,
+            collectionView.right,
+            collectionView.bottom
+        )
         
-        collectionView.registerClass(SAParallaxViewCell.self, forCellWithReuseIdentifier: kParallaxViewCellReuseIdentifier)
-        collectionView.backgroundColor = .clearColor()
+        collectionView.register(SAParallaxViewCell.self, forCellWithReuseIdentifier: SAParallaxViewController.parallaxViewCellReuseIdentifier)
+        collectionView.backgroundColor = .clear
         collectionView.delegate = self
         collectionView.dataSource = self
     }
     
-    public override func viewWillAppear(animated: Bool) {
+    open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        if let cells = collectionView.visibleCells() as? [UICollectionViewCell] {
-            for cell in cells {
-                cell.selected = false
-            }
-        }
+        collectionView.visibleCells.forEach { $0.isSelected = false }
     }
 
-    public override func didReceiveMemoryWarning() {
+    open override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-    public override func prefersStatusBarHidden() -> Bool {
+    open override var prefersStatusBarHidden : Bool {
         return true
     }
 }
 
 //MARK: - UICollectionViewDataSource
 extension SAParallaxViewController: UICollectionViewDataSource {
-    
-    public func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 30
     }
     
-    public func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(kParallaxViewCellReuseIdentifier, forIndexPath: indexPath) as! UICollectionViewCell
-        cell.backgroundColor = .clearColor()
-        cell.selected = false
+    open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SAParallaxViewController.parallaxViewCellReuseIdentifier, for: indexPath)
+        cell.backgroundColor = .clear
+        cell.isSelected = false
         return cell
     }
 }
 
 //MARK: - UICollectionViewDelegate
 extension SAParallaxViewController: UICollectionViewDelegate {
-    
-    public func scrollViewDidScroll(scrollView: UIScrollView) {
-        if let cells = collectionView.visibleCells() as? [SAParallaxViewCell] {
-            for cell in cells {
-                let point = cell.superview!.convertPoint(cell.frame.origin, toView:view)
-                
-                let yScrollStart = scrollView.frame.size.height - cell.frame.size.height
-                if yScrollStart >= point.y {
-                    
-                    let imageRemainDistance = (cell.containerView.imageView.frame.size.width - cell.frame.size.height) / 2.0
-                    let maxScrollDistance = scrollView.frame.size.height
-                    var yOffset = (1.0 - ((point.y + cell.frame.size.height) / maxScrollDistance)) * imageRemainDistance
-                    
-                    if yOffset > imageRemainDistance {
-                        yOffset = imageRemainDistance
-                    }
-                    if let parallaxStartPosition = cell.containerView.parallaxStartPosition() {
-                        cell.setImageOffset(CGPoint(x: 0.0, y: -(parallaxStartPosition) - yOffset))
-                    }
-                }
+    open func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard let cells = collectionView.visibleCells as? [SAParallaxViewCell] else { return }
+        cells.forEach {
+            guard let point = $0.superview?.convert($0.frame.origin, to:view) else { return }
+            let yScrollStart = scrollView.frame.size.height - $0.frame.size.height
+            guard yScrollStart >= point.y else { return }
+            let imageRemainDistance = ($0.containerView.imageView.frame.size.width - $0.frame.size.height) / 2.0
+            let maxScrollDistance = scrollView.frame.size.height
+            var yOffset = (1.0 - ((point.y + $0.frame.size.height) / maxScrollDistance)) * imageRemainDistance
+            
+            if yOffset > imageRemainDistance {
+                yOffset = imageRemainDistance
+            }
+            if let parallaxStartPosition = $0.containerView.parallaxStartPosition() {
+                $0.setImageOffset(CGPoint(x: 0.0, y: -(parallaxStartPosition) - yOffset))
             }
         }
     }
     
-    public func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-        collectionView.deselectItemAtIndexPath(indexPath, animated: false)
-        let cell = collectionView.cellForItemAtIndexPath(indexPath)
-        cell?.selected = true
+    open func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: false)
+        collectionView.cellForItem(at: indexPath)?.isSelected = true
     }
 }
 
 //MARK: - UIViewControllerTransitioningDelegate
 extension SAParallaxViewController: UIViewControllerTransitioningDelegate {
-
-    public func animationControllerForPresentedController(presented: UIViewController, presentingController presenting: UIViewController, sourceController source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+    open func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         return transitionManager
     }
     
-    public func animationControllerForDismissedController(dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+    open func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         return transitionManager
     }
 }
