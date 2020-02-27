@@ -8,6 +8,11 @@ PODS:
 DEPENDENCIES:
   - SAParallaxViewControllerSwift (from `../`)
 
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - MisterFusion
+    - SABlurImageView
+
 EXTERNAL SOURCES:
   SAParallaxViewControllerSwift:
     :path: "../"
@@ -19,4 +24,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: d35a45f146416c6f7fd66ee848bba9b490f4a723
 
-COCOAPODS: 1.1.0.rc.2
+COCOAPODS: 1.6.1
