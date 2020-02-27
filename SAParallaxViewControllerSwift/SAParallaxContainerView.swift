@@ -65,7 +65,7 @@ open class SAParallaxContainerView: UIView {
             if yPoint == 0 {
                 yStartPoint = 0
             }
-            imageView.autoresizingMask = UIViewAutoresizing()
+            imageView.autoresizingMask = UIView.AutoresizingMask()
             imageView.frame = CGRect(x: 0, y: -yPoint, width: width, height: height)
             addSubview(imageView)
         }

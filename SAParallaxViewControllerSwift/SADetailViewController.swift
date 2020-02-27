@@ -34,7 +34,7 @@ open class SADetailViewController: UIViewController {
         imageView.image = trantisionContainerView?.containerView?.imageView.image
         if let imageSize = imageView.image?.size {
             let height = width * imageSize.height / imageSize.width
-            imageView.autoresizingMask = UIViewAutoresizing()
+            imageView.autoresizingMask = UIView.AutoresizingMask()
             imageView.frame = CGRect(x: 0, y: 0, width: width, height: height)
             view.addSubview(imageView)
         }
@@ -62,7 +62,7 @@ open class SADetailViewController: UIViewController {
         self.headerView = headerView
         
         let closeButton = UIButton(frame: CGRect(x: 0.0, y: 0.0, width: Const.headerViewHeight, height: Const.headerViewHeight))
-        closeButton.setTitle("×", for: UIControlState())
+        closeButton.setTitle("×", for: UIControl.State())
         closeButton.titleLabel?.font = .systemFont(ofSize: Const.headerViewHeight)
         closeButton.titleLabel?.textColor = .white
         closeButton.addTarget(self, action: #selector(SADetailViewController.closeAction(_:)), for: .touchUpInside)
@@ -87,7 +87,7 @@ open class SADetailViewController: UIViewController {
         return true
     }
     
-    open func closeAction(_ button: UIButton) {
+    @objc open func closeAction(_ button: UIButton) {
         UIView.animate(withDuration: 0.25, delay: 0.0, options: .curveEaseIn, animations: {
             self.headerContainerView?.alpha = 0.0
         }, completion: { _ in
