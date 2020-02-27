@@ -1,15 +1,13 @@
 # MisterFusion
 
-[![Platform](http://img.shields.io/badge/platform-ios-blue.svg?style=flat
+[![Platform](http://img.shields.io/badge/platform-iOS%20|%20tvOS%20|%20macOS-blue.svg?style=flat
 )](https://developer.apple.com/iphone/index.action)
-[![Language](http://img.shields.io/badge/language-swift-brightgreen.svg?style=flat
+[![Language](http://img.shields.io/badge/swift-5-orange.svg?style=flat
 )](https://developer.apple.com/swift)
 [![Version](https://img.shields.io/cocoapods/v/MisterFusion.svg?style=flat)](http://cocoapods.org/pods/MisterFusion)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License](https://img.shields.io/cocoapods/l/MisterFusion.svg?style=flat)](http://cocoapods.org/pods/MisterFusion)
-
-[ManiacDev.com](https://maniacdev.com/) referred.  
-[https://maniacdev.com/2015/12/open-source-auto-layout-library-with-a-simple-and-concise-syntax](https://maniacdev.com/2015/12/open-source-auto-layout-library-with-a-simple-and-concise-syntax)
+[![Build Status](https://travis-ci.org/marty-suzuki/MisterFusion.svg?branch=master)](https://travis-ci.org/marty-suzuki/MisterFusion)
 
 ![](./Images/logo.png)
 
@@ -19,14 +17,18 @@ MisterFusion makes more easier to use AutoLayout in Swift & Objective-C code.
 - [x] Simple And Concise Syntax
 - [x] Use in Swift and Objective-C
 - [x] Support Size Class
-- [x] Support Swift2.3
-- [x] Support Swift3
+- [x] Support Swift5
+- [x] Support Swift4 (until 4.0.1)
+- [x] Support SafeArea🎉 (Swift3.2 since 2.3.1, Swift4 since 3.1.0)
+- [x] Support iOS
+- [x] Support tvOS (since 3.2.0)
+- [x] Support macOS (since 4.0.0)
 
 #### MisterFusion Code for Swift
 
 ```swift
 let view = UIView()
-self.view.addLayoutSubview(view, andConstraints:
+self.view.mf.addSubview(view, andConstraints:
     view.top    |+| 10,
     view.right  |-| 10,
     view.left   |+| 10,
@@ -86,16 +88,16 @@ If you want to realize layout like a above image, needed code is only this.
 
 ```swift
 let redView = UIView()
-redView.backgroundColor = .red()
-self.view.addLayoutSubview(redView, andConstraints:
+redView.backgroundColor = .red
+self.view.mf.addSubview(redView, andConstraints:
     redView.top   |+| 10,
     redView.right |-| 10,
     redView.left  |+| 10
 )
 
 let yellowView = UIView()
-yellowView.backgroundColor = .yellow()
-self.view.addLayoutSubview(yellowView, andConstraints:
+yellowView.backgroundColor = .yellow
+self.view.mf.addSubview(yellowView, andConstraints:
     yellowView.top    |==| redView.bottom |+| 10,
     yellowView.left   |+|  10,
     yellowView.bottom |-|  10,
@@ -103,8 +105,8 @@ self.view.addLayoutSubview(yellowView, andConstraints:
 )
 
 let greenView = UIView()
-greenView.backgroundColor = .green()
-self.view.addLayoutSubview(greenView, andConstraints:
+greenView.backgroundColor = .green
+self.view.mf.addSubview(greenView, andConstraints:
     greenView.top    |==| redView.bottom    |+| 10,
     greenView.left   |==| yellowView.right  |+| 10,
     greenView.bottom |-|  10,
@@ -151,7 +153,7 @@ You can set `multiplier`, `constant` and `priority` like this.
 #### Swift
 
 ```swift
-self.view.addLayoutSubview(view, andConstraints:
+self.view.mf.addSubview(view, andConstraints:
     view.top    |==| self.view.top    |*| 1 |+| 10 |<>| UILayoutPriorityRequired,
     view.right  |==| self.view.right  |*| 1 |-| 10 |<>| UILayoutPriorityRequired,
     view.left   |==| self.view.left   |*| 1 |+| 10 |<>| UILayoutPriorityRequired,
@@ -221,7 +223,7 @@ let bottomConstraint: NSLayoutConstraint = self.view.addLayoutSubview(view, andC
     view.right  |-| 10,
     view.left   |+| 10,
     view.bottom |-| 10
-).firstAttribute(.Bottom).first
+).firstAttribute(.bottom).first
 ```
 
 You can use `Size Class` with `func traitCollectionDidChange(previousTraitCollection: UITraitCollection?)`.
@@ -236,14 +238,81 @@ override func traitCollectionDidChange(previousTraitCollection: UITraitCollectio
     if let whiteViewHeightConstraint = whiteViewWidthConstraint {
         redView.removeConstraint(whiteViewHeightConstraint)
     }
-    self.whiteViewWidthConstraint = redView.addLayoutConstraints(
+    self.whiteViewWidthConstraint = redView.mf.addConstraints(
         whiteView.width |-| 20 <|> .compact <-> .regular,
         whiteView.width |*| 0.5 |-| 10 <|> .regular <-> .compact
     ).firstAttribute(.width).first
 }
 ```
 
-* A detail sample is [here](./MisterFusionSample/MisterFusionSample/ViewController.swift)
+* A detail sample is [here](./Example/MisterFusionSample/ViewController.swift)
+
+#### Safe Area
+
+You can use `view.safeArea.top` and so on. This is supported Safe Area.
+
+```swift
+view.mf.addConstraints(
+    yellowView.top    |==| redView.bottom       |+| 10,
+    yellowView.right  |==| view.safeArea.right  |-| 10,
+    yellowView.left   |==| view.safeArea.left   |+| 10,
+    yellowView.height |==| view.safeArea.height |/| 2 |-| 15
+)
+```
+If OS version is below iOS 11, `view.safeArea.top` returns `view.top` internally.
+
+![](./Images/iphone_x.gif)
+
+Those are accessible safeArea properties.
+
+```swift
+extension UIView {
+    public var safeArea: UIViewSafeArea { get }
+}
+
+extension UIViewSafeArea {
+    public var top: MisterFusion { get }
+    public var right: MisterFusion { get }
+    public var left: MisterFusion { get }
+    public var bottom: MisterFusion { get }
+    public var height: MisterFusion { get }
+    public var width: MisterFusion { get }
+    public var leading: MisterFusion { get }
+    public var trailing: MisterFusion { get }
+    public var centerX: MisterFusion { get }
+    public var centerY: MisterFusion { get }
+    public var notAnAttribute: MisterFusion { get }
+    public var lastBaseline: MisterFusion { get }
+    public var firstBaseline: MisterFusion { get }
+    public var leftMargin: MisterFusion { get }
+    public var rightMargin: MisterFusion { get }
+    public var topMargin: MisterFusion { get }
+    public var bottomMargin: MisterFusion { get }
+    public var leadingMargin: MisterFusion { get }
+    public var trailingMargin: MisterFusion { get }
+    public var centerXWithinMargins: MisterFusion { get }
+    public var centerYWithinMargins: MisterFusion { get }
+}
+```
+
+In ViewController, you can use `self.safeArea.top` and `self.safeArea.bottom`.
+
+Greater than or equal to iOS 11, `self.safeArea.top` returns `self.view.safeAreaLayoutGuide.topAnchor`.
+And `self.safeArea.bottom` returns, `self.view.safeAreaLayoutGuide.bottomAnchor`.
+
+Less then or equal to iOS 10, `self.safeArea.top` returns 'self.topLayoutGuide.bottomAnchor'.
+And `self.safeArea.bottom` returns, `self.bottomLayoutGuide.topAnchor`.
+
+```swift
+extension UIViewController {
+    public var safeArea: UIViewControllerSafeArea { get }
+}
+
+extension UIViewControllerSafeArea {
+    public var top: MisterFusion { get }
+    public var bottom: MisterFusion { get }
+}
+```
 
 ## For Objective-C
 
@@ -326,12 +395,72 @@ This is an example Regular, Compact size for iPhone6s+.
 }
 ```
 
-* A detail sample is [here](./MisterFusionSample/MisterFusionSample/MFViewController.m)
+* A detail sample is [here](./Example/MisterFusionSample/MFViewController.m)
+
+#### Safe Area
+
+You can use `self.view.SafeAreaTop` and so on. This is supported Safe Area.
+
+```objective-c
+[self.view addLayoutConstraints:@[
+    yellowView.Top   .Equal(redView.Bottom)          .Constant(10.0f),
+    yellowView.Right .Equal(self.view.SafeAreaRight) .Constant(-10.0f),
+    yellowView.Left  .Equal(self.view.SafeAreaLeft)  .Constant(10.0f),
+    yellowView.Height.Equal(self.view.SafeAreaHeight).Multiplier(0.5f).Constant(-15.0f)
+]];
+```
+
+If OS version is below iOS 11, `self.view.SafeAreaTop` returns `self.view.Top` internally.
+
+![](./Images/iphone_x.gif)
+
+Those are accessible safeArea properties.
+
+```objective-c
+// UIView
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaTop;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaRight;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaLeft;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaBottom;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaHeight;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaWidth;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaLeading;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaTrailing;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaCenterX;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaCenterY;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaNotAnAttribute;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaLastBaseline;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaFirstBaseline;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaLeftMargin;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaRightMargin;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaTopMargin;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaBottomMargin;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaLeadingMargin;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaTrailingMargin;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaCenterXWithinMargins;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaCenterYWithinMargins;
+```
+
+In ViewController, you can use `self.SafeAreaTop` and `self.SafeAreaBottom`.
+
+Greater than or equal to iOS 11, `self.SafeAreaTop` returns `self.view.safeAreaLayoutGuide.topAnchor`.
+And `self.SafeAreaBottom` returns, `self.view.safeAreaLayoutGuide.bottomAnchor`.
+
+Less then or equal to iOS 10, `self.SafeAreaTop` returns 'self.topLayoutGuide.bottomAnchor'.
+And `self.SafeAreaBottom` returns, `self.bottomLayoutGuide.topAnchor`.
+
+```objective-c
+// UIViewController
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaTop;
+@property (nonatomic, readonly, strong) MisterFusion * _Nonnull SafeAreaBottom;
+```
 
 ## Requirements
 
-- Xcode 8.0 or greater
+- Xcode 10.2 or greater
 - iOS 8.0 or greater
+- tvOS 10.0 or greater
+- macOS 10.11 or greater
 
 ## Author
 

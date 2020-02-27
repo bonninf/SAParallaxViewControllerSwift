@@ -1,27 +1,35 @@
 PODS:
-  - MisterFusion (2.0.1)
-  - SABlurImageView (3.0.0)
+  - MisterFusion (5.0.0)
+  - SABlurImageView (5.0.1)
   - SAParallaxViewControllerSwift (2.0.0):
     - MisterFusion
     - SABlurImageView
 
 DEPENDENCIES:
+  - SABlurImageView (from `https://github.com/bonninf/SABlurImageView.git`, commit `65a443020206d9ba2b33c57bc64438a23b665036`)
   - SAParallaxViewControllerSwift (from `../`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - MisterFusion
-    - SABlurImageView
 
 EXTERNAL SOURCES:
+  SABlurImageView:
+    :commit: 65a443020206d9ba2b33c57bc64438a23b665036
+    :git: https://github.com/bonninf/SABlurImageView.git
   SAParallaxViewControllerSwift:
     :path: "../"
 
+CHECKOUT OPTIONS:
+  SABlurImageView:
+    :commit: 65a443020206d9ba2b33c57bc64438a23b665036
+    :git: https://github.com/bonninf/SABlurImageView.git
+
 SPEC CHECKSUMS:
-  MisterFusion: d42cac7afe8318c282bcda93396eba0aef45d30e
-  SABlurImageView: 7003ca28ded502c984846374a117f88a287d9faf
+  MisterFusion: 536b0f57d2d4b775e3c9ce436e211ed293c5e01a
+  SABlurImageView: 37ddb42a12ca904dea7716fcc5377b42770f3d2f
   SAParallaxViewControllerSwift: 04939b077ef0a563be74fed16cfc0688900a3c09
 
-PODFILE CHECKSUM: d35a45f146416c6f7fd66ee848bba9b490f4a723
+PODFILE CHECKSUM: f2aa86f561d5731075c673bf2dc9565606eae357
 
 COCOAPODS: 1.6.1

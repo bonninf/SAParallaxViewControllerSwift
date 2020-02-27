@@ -6,36 +6,83 @@
 //  Copyright © 2015年 Taiki Suzuki. All rights reserved.
 //
 
+#if os(iOS) || os(tvOS)
 import UIKit
+public typealias View = UIView
+@available(iOS 9.0, *)
+public typealias LayoutGuide = UILayoutGuide
+public typealias LayoutPriority = UILayoutPriority
+public typealias UserInterfaceSizeClass = UIUserInterfaceSizeClass
+#elseif os(macOS)
+import AppKit
+public typealias View = NSView
+public typealias LayoutGuide = NSLayoutGuide
+public typealias LayoutPriority = NSLayoutConstraint.Priority
+public typealias UserInterfaceSizeClass = Void
+#endif
 
-open class MisterFusion: NSObject {
-    fileprivate let item: UIView?
-    fileprivate let attribute: NSLayoutAttribute?
-    fileprivate let relatedBy: NSLayoutRelation?
-    fileprivate let toItem: UIView?
-    fileprivate let toAttribute: NSLayoutAttribute?
+#if swift(>=4.2) || os(macOS)
+public typealias Attribute = NSLayoutConstraint.Attribute
+public typealias Relation = NSLayoutConstraint.Relation
+#elseif os(iOS) || os(tvOS)
+public typealias Attribute = NSLayoutAttribute
+public typealias Relation = NSLayoutRelation
+#endif
+
+protocol _LayoutObject: class {
+    var rawValue: Any { get }
+}
+
+extension View: _LayoutObject {
+    var rawValue: Any { return self }
+}
+
+@available(iOS 9.0, OSX 10.11, *)
+extension LayoutGuide: _LayoutObject {
+    var rawValue: Any { return self }
+}
+
+public class MisterFusion: NSObject {
+
+    fileprivate let item: _LayoutObject?
+    fileprivate let attribute: Attribute?
+    fileprivate let relatedBy: Relation?
+    fileprivate let toItem: _LayoutObject?
+    fileprivate let toAttribute: Attribute?
     fileprivate let multiplier: CGFloat?
     fileprivate let constant: CGFloat?
-    fileprivate let priority: UILayoutPriority?
-    fileprivate let horizontalSizeClass: UIUserInterfaceSizeClass?
-    fileprivate let verticalSizeClass: UIUserInterfaceSizeClass?
+    fileprivate let priority: LayoutPriority?
+    fileprivate let horizontalSizeClass: UserInterfaceSizeClass?
+    fileprivate let verticalSizeClass: UserInterfaceSizeClass?
     fileprivate let identifier: String?
     
     override open var description: String {
+        #if os(iOS) || os(tvOS)
         return "\(super.description)\n" +
-               "item               : \(item)\n" +
-               "attribute          : \(attribute?.rawValue))\n" +
-               "relatedBy          : \(relatedBy?.rawValue))\n" +
-               "toItem             : \(toItem)\n" +
-               "toAttribute        : \(toAttribute?.rawValue))\n" +
-               "multiplier         : \(multiplier)\n" +
-               "constant           : \(constant)\n" +
-               "priority           : \(priority)\n" +
-               "horizontalSizeClass: \(horizontalSizeClass?.rawValue)\n" +
-               "verticalSizeClass  : \(verticalSizeClass?.rawValue)\n"
+               "item               : \(item as _LayoutObject?)\n" +
+               "attribute          : \(attribute as Attribute?))\n" +
+               "relatedBy          : \(relatedBy as Relation?))\n" +
+               "toItem             : \(toItem as _LayoutObject?)\n" +
+               "toAttribute        : \(toAttribute as Attribute?))\n" +
+               "multiplier         : \(multiplier as CGFloat?)\n" +
+               "constant           : \(constant as CGFloat?)\n" +
+               "priority           : \(priority as LayoutPriority?)\n" +
+               "horizontalSizeClass: \(horizontalSizeClass as UserInterfaceSizeClass?)\n" +
+               "verticalSizeClass  : \(verticalSizeClass as UserInterfaceSizeClass?)\n"
+        #elseif os(macOS)
+        return "\(super.description)\n" +
+                "item               : \(item as _LayoutObject?)\n" +
+                "attribute          : \(attribute as Attribute?))\n" +
+                "relatedBy          : \(relatedBy as Relation?))\n" +
+                "toItem             : \(toItem as _LayoutObject?)\n" +
+                "toAttribute        : \(toAttribute as Attribute?))\n" +
+                "multiplier         : \(multiplier as CGFloat?)\n" +
+                "constant           : \(constant as CGFloat?)\n" +
+                "priority           : \(priority as LayoutPriority?)\n"
+        #endif
     }
-    
-    init(item: UIView?, attribute: NSLayoutAttribute?, relatedBy: NSLayoutRelation?, toItem: UIView?, toAttribute: NSLayoutAttribute?, multiplier: CGFloat?, constant: CGFloat?, priority: UILayoutPriority?, horizontalSizeClass: UIUserInterfaceSizeClass?, verticalSizeClass: UIUserInterfaceSizeClass?, identifier: String?) {
+
+    init(item: _LayoutObject?, attribute: Attribute?, relatedBy: Relation?, toItem: _LayoutObject?, toAttribute: Attribute?, multiplier: CGFloat?, constant: CGFloat?, priority: LayoutPriority?, horizontalSizeClass: UserInterfaceSizeClass?, verticalSizeClass: UserInterfaceSizeClass?, identifier: String?) {
         self.item = item
         self.attribute = attribute
         self.relatedBy = relatedBy
@@ -49,106 +96,94 @@ open class MisterFusion: NSObject {
         self.identifier = identifier
         super.init()
     }
-    
-    @available(*, unavailable)
-    open var Equal: (MisterFusion) -> MisterFusion? {
+
+    @objc public var Equal: (MisterFusion) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me |==| $0
         }
     }
-    
-    @available(*, unavailable)
-    open var NotRelatedEqualConstant: (CGFloat) -> MisterFusion? {
+
+    @objc public var NotRelatedEqualConstant: (CGFloat) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me |==| $0
         }
     }
-    
-    @available(*, unavailable)
-    open var LessThanOrEqual: (MisterFusion) -> MisterFusion? {
+
+    @objc public var LessThanOrEqual: (MisterFusion) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me |<=| $0
         }
     }
-    
-    @available(iOS, unavailable)
-    open var NotRelatedLessThanOrEqualConstant: (CGFloat) -> MisterFusion? {
+
+    @objc public var NotRelatedLessThanOrEqualConstant: (CGFloat) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me |<=| $0
         }
     }
-    
-    @available(iOS, unavailable)
-    open var GreaterThanOrEqual: (MisterFusion) -> MisterFusion? {
+
+    @objc public var GreaterThanOrEqual: (MisterFusion) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me |>=| $0
         }
     }
-    
-    @available(iOS, unavailable)
-    open var NotRelatedGreaterThanOrEqualConstant: (CGFloat) -> MisterFusion? {
+
+    @objc public var NotRelatedGreaterThanOrEqualConstant: (CGFloat) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me |>=| $0
         }
     }
-    
-    @available(iOS, unavailable)
-    open var Multiplier: (CGFloat) -> MisterFusion? {
+
+    @objc public var Multiplier: (CGFloat) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me |*| $0
         }
     }
-    
-    @available(iOS, unavailable)
-    open var Constant: (CGFloat) -> MisterFusion? {
+
+    @objc public var Constant: (CGFloat) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me |+| $0
         }
     }
-    
-    @available(iOS, unavailable)
-    open var Priority: (UILayoutPriority) -> MisterFusion? {
+
+    @objc public var Priority: (LayoutPriority) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me |<>| $0
         }
     }
-    
-    @available(*, unavailable)
-    open var NotRelatedConstant: (CGFloat) -> MisterFusion? {
+
+    @objc public var NotRelatedConstant: (CGFloat) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me |==| $0
         }
     }
-    
-    @available(*, unavailable)
-    open var HorizontalSizeClass: (UIUserInterfaceSizeClass) -> MisterFusion? {
+
+    #if os(iOS) || os(tvOS)
+    @objc public var HorizontalSizeClass: (UserInterfaceSizeClass) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me <-> $0
         }
     }
 
-    @available(*, unavailable)
-    open var VerticalSizeClass: (UIUserInterfaceSizeClass) -> MisterFusion? {
+    @objc public var VerticalSizeClass: (UserInterfaceSizeClass) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me <|> $0
         }
     }
+    #endif
     
-
-    @available(*, unavailable)
-    open var Identifier: (String) -> MisterFusion? {
+    @objc public var Identifier: (String) -> MisterFusion? {
         return { [weak self] in
             guard let me = self else { return nil }
             return me -=- $0
@@ -211,17 +246,17 @@ public func |/| (left: MisterFusion, right: CGFloat) -> MisterFusion {
 }
 
 infix operator |<>| : MisterFusionAdditive
-public func |<>| (left: MisterFusion, right: UILayoutPriority) -> MisterFusion {
+public func |<>| (left: MisterFusion, right: LayoutPriority) -> MisterFusion {
     return MisterFusion(item: left.item, attribute: left.attribute, relatedBy: left.relatedBy, toItem: left.toItem, toAttribute: left.toAttribute, multiplier: left.multiplier, constant: left.constant, priority: right, horizontalSizeClass: left.horizontalSizeClass, verticalSizeClass: left.verticalSizeClass, identifier: left.identifier)
 }
 
 infix operator <-> : MisterFusionAdditive
-public func <-> (left: MisterFusion, right: UIUserInterfaceSizeClass) -> MisterFusion {
+public func <-> (left: MisterFusion, right: UserInterfaceSizeClass) -> MisterFusion {
     return MisterFusion(item: left.item, attribute: left.attribute, relatedBy: left.relatedBy, toItem: left.toItem, toAttribute: left.toAttribute, multiplier: left.multiplier, constant: left.constant, priority: left.priority, horizontalSizeClass: right, verticalSizeClass: left.verticalSizeClass, identifier: left.identifier)
 }
 
 infix operator <|> : MisterFusionAdditive
-public func <|> (left: MisterFusion, right: UIUserInterfaceSizeClass) -> MisterFusion {
+public func <|> (left: MisterFusion, right: UserInterfaceSizeClass) -> MisterFusion {
     return MisterFusion(item: left.item, attribute: left.attribute, relatedBy: left.relatedBy, toItem: left.toItem, toAttribute: left.toAttribute, multiplier: left.multiplier, constant: left.constant, priority: left.priority, horizontalSizeClass: left.horizontalSizeClass, verticalSizeClass: right, identifier: left.identifier)
 }
 
@@ -230,93 +265,86 @@ public func -=- (left: MisterFusion, right: String) -> MisterFusion {
     return MisterFusion(item: left.item, attribute: left.attribute, relatedBy: left.relatedBy, toItem: left.toItem, toAttribute: left.toAttribute, multiplier: left.multiplier, constant: left.constant, priority: left.priority, horizontalSizeClass: left.horizontalSizeClass, verticalSizeClass: left.verticalSizeClass, identifier: right)
 }
 
-extension UIView {
+extension View: MisterFusionConvertible {
     @objc(Top)
-    public var top: MisterFusion { return createMisterFusion(withAttribute: .top) }
+    public var top: MisterFusion { return createMisterFusion(with: .top) }
     
     @objc(Right)
-    public var right: MisterFusion { return createMisterFusion(withAttribute: .right) }
+    public var right: MisterFusion { return createMisterFusion(with: .right) }
     
     @objc(Left)
-    public var left: MisterFusion { return createMisterFusion(withAttribute: .left) }
+    public var left: MisterFusion { return createMisterFusion(with: .left) }
     
     @objc(Bottom)
-    public var bottom: MisterFusion { return createMisterFusion(withAttribute: .bottom) }
+    public var bottom: MisterFusion { return createMisterFusion(with: .bottom) }
     
     @objc(Height)
-    public var height: MisterFusion { return createMisterFusion(withAttribute: .height) }
+    public var height: MisterFusion { return createMisterFusion(with: .height) }
     
     @objc(Width)
-    public var width: MisterFusion { return createMisterFusion(withAttribute: .width) }
+    public var width: MisterFusion { return createMisterFusion(with: .width) }
     
     @objc(Leading)
-    public var leading: MisterFusion { return createMisterFusion(withAttribute: .leading) }
+    public var leading: MisterFusion { return createMisterFusion(with: .leading) }
     
     @objc(Trailing)
-    public var trailing: MisterFusion { return createMisterFusion(withAttribute: .trailing) }
+    public var trailing: MisterFusion { return createMisterFusion(with: .trailing) }
     
     @objc(CenterX)
-    public var centerX: MisterFusion { return createMisterFusion(withAttribute: .centerX) }
+    public var centerX: MisterFusion { return createMisterFusion(with: .centerX) }
     
     @objc(CenterY)
-    public var centerY: MisterFusion { return createMisterFusion(withAttribute: .centerY) }
-
-    @available(iOS, obsoleted: 7.0, renamed: "lastBaseline")
-    @objc(Baseline)
-    public var baseline: MisterFusion { return createMisterFusion(withAttribute: .lastBaseline) }
+    public var centerY: MisterFusion { return createMisterFusion(with: .centerY) }
     
     @objc(NotAnAttribute)
-    public var notAnAttribute: MisterFusion { return createMisterFusion(withAttribute: .notAnAttribute) }
+    public var notAnAttribute: MisterFusion { return createMisterFusion(with: .notAnAttribute) }
     
     @objc(LastBaseline)
-    public var lastBaseline: MisterFusion { return createMisterFusion(withAttribute: .lastBaseline) }
+    public var lastBaseline: MisterFusion { return createMisterFusion(with: .lastBaseline) }
     
-    @available(iOS 8.0, *)
     @objc(FirstBaseline)
-    public var firstBaseline: MisterFusion { return createMisterFusion(withAttribute: .firstBaseline) }
-    
-    @available(iOS 8.0, *)
-    @objc(LeftMargin)
-    public var leftMargin: MisterFusion { return createMisterFusion(withAttribute: .leftMargin) }
-    
-    @available(iOS 8.0, *)
-    @objc(RightMargin)
-    public var rightMargin: MisterFusion { return createMisterFusion(withAttribute: .rightMargin) }
-    
-    @available(iOS 8.0, *)
-    @objc(TopMargin)
-    public var topMargin: MisterFusion { return createMisterFusion(withAttribute: .topMargin) }
-    
-    @available(iOS 8.0, *)
-    @objc(BottomMargin)
-    public var bottomMargin: MisterFusion { return createMisterFusion(withAttribute: .bottomMargin) }
-    
-    @available(iOS 8.0, *)
-    @objc(LeadingMargin)
-    public var leadingMargin: MisterFusion { return createMisterFusion(withAttribute: .leadingMargin) }
-    
-    @available(iOS 8.0, *)
-    @objc(TrailingMargin)
-    public var trailingMargin: MisterFusion { return createMisterFusion(withAttribute: .trailingMargin) }
-    
-    @available(iOS 8.0, *)
-    @objc(CenterXWithinMargins)
-    public var centerXWithinMargins: MisterFusion { return createMisterFusion(withAttribute: .centerXWithinMargins) }
-    
-    @available(iOS 8.0, *)
-    @objc(CenterYWithinMargins)
-    public var centerYWithinMargins: MisterFusion { return createMisterFusion(withAttribute: .centerYWithinMargins) }
-    
-    fileprivate func createMisterFusion(withAttribute attribute: NSLayoutAttribute) -> MisterFusion {
+    public var firstBaseline: MisterFusion { return createMisterFusion(with: .firstBaseline) }
+
+    private func createMisterFusion(with attribute: Attribute) -> MisterFusion {
         return MisterFusion(item: self, attribute: attribute, relatedBy: nil, toItem: nil, toAttribute: nil, multiplier: nil, constant: nil, priority: nil, horizontalSizeClass: nil, verticalSizeClass: nil, identifier: nil)
     }
 }
 
-extension UIView {
+#if os(iOS) || os(tvOS)
+extension View {
+    @objc(LeftMargin)
+    public var leftMargin: MisterFusion { return createMisterFusion(with: .leftMargin) }
+    
+    @objc(RightMargin)
+    public var rightMargin: MisterFusion { return createMisterFusion(with: .rightMargin) }
+    
+    @objc(TopMargin)
+    public var topMargin: MisterFusion { return createMisterFusion(with: .topMargin) }
+    
+    @objc(BottomMargin)
+    public var bottomMargin: MisterFusion { return createMisterFusion(with: .bottomMargin) }
+    
+    @objc(LeadingMargin)
+    public var leadingMargin: MisterFusion { return createMisterFusion(with: .leadingMargin) }
+    
+    @objc(TrailingMargin)
+    public var trailingMargin: MisterFusion { return createMisterFusion(with: .trailingMargin) }
+    
+    @objc(CenterXWithinMargins)
+    public var centerXWithinMargins: MisterFusion { return createMisterFusion(with: .centerXWithinMargins) }
+    
+    @objc(CenterYWithinMargins)
+    public var centerYWithinMargins: MisterFusion { return createMisterFusion(with: .centerYWithinMargins) }
+}
+#endif
+
+extension View {
     //MARK: - addConstraint()
-    public func addLayoutConstraint(_ misterFusion: MisterFusion) -> NSLayoutConstraint? {
-        let item: UIView = misterFusion.item ?? self
-        let traitCollection = UIApplication.shared.keyWindow?.traitCollection
+    func _addLayoutConstraint(_ misterFusion: MisterFusion) -> NSLayoutConstraint? {
+        let item: _LayoutObject = misterFusion.item ?? self
+
+        #if os(iOS) || os(tvOS)
+        let traitCollection = window?.traitCollection
         if let horizontalSizeClass = misterFusion.horizontalSizeClass
             , horizontalSizeClass != traitCollection?.horizontalSizeClass {
             return nil
@@ -325,108 +353,82 @@ extension UIView {
             , verticalSizeClass != traitCollection?.verticalSizeClass {
             return nil
         }
-        let attribute: NSLayoutAttribute = misterFusion.attribute ?? .notAnAttribute
-        let relatedBy: NSLayoutRelation = misterFusion.relatedBy ?? .equal
-        let toAttribute: NSLayoutAttribute = misterFusion.toAttribute ?? attribute
-        let toItem: UIView? = toAttribute == .notAnAttribute ? nil : misterFusion.toItem ?? self
+        #endif
+
+        let attribute: Attribute = misterFusion.attribute ?? .notAnAttribute
+        let relatedBy: Relation = misterFusion.relatedBy ?? .equal
+        let toAttribute: Attribute = misterFusion.toAttribute ?? attribute
+        let toItem: _LayoutObject? = toAttribute == .notAnAttribute ? nil : misterFusion.toItem ?? self
         let multiplier: CGFloat = misterFusion.multiplier ?? 1
         let constant: CGFloat = misterFusion.constant ?? 0
-        let constraint = NSLayoutConstraint(item: item, attribute: attribute, relatedBy: relatedBy, toItem: toItem, attribute: toAttribute, multiplier: multiplier, constant: constant)
-        constraint.priority = misterFusion.priority ?? UILayoutPriorityRequired
+        let constraint = NSLayoutConstraint(item: item.rawValue, attribute: attribute, relatedBy: relatedBy, toItem: toItem?.rawValue, attribute: toAttribute, multiplier: multiplier, constant: constant)
+        constraint.priority = misterFusion.priority ?? .required
         constraint.identifier = misterFusion.identifier
         addConstraint(constraint)
         return constraint
     }
     
-    @discardableResult
-    public func addLayoutConstraints(_ misterFusions: [MisterFusion]) -> [NSLayoutConstraint] {
-        return misterFusions.flatMap { addLayoutConstraint($0) }
-    }
-    
-    @discardableResult
-    public func addLayoutConstraints(_ misterFusions: MisterFusion...) -> [NSLayoutConstraint] {
-        return addLayoutConstraints(misterFusions)
+    func _addLayoutConstraints(_ misterFusions: [MisterFusion]) -> [NSLayoutConstraint] {
+        #if swift(>=4.1)
+        return misterFusions.compactMap { _addLayoutConstraint($0) }
+        #else
+        return misterFusions.flatMap { _addLayoutConstraint($0) }
+        #endif
     }
 
     //MARK: - addSubview()
-    @discardableResult
-    public func addLayoutSubview(_ subview: UIView, andConstraint misterFusion: MisterFusion) -> NSLayoutConstraint? {
+    func _addLayoutSubview(_ subview: View, andConstraint misterFusion: MisterFusion) -> NSLayoutConstraint? {
         addSubview(subview)
         subview.translatesAutoresizingMaskIntoConstraints = false
-        return addLayoutConstraint(misterFusion)
+        return _addLayoutConstraint(misterFusion)
     }
     
-    @discardableResult
-    public func addLayoutSubview(_ subview: UIView, andConstraints misterFusions: [MisterFusion]) -> [NSLayoutConstraint] {
+    func _addLayoutSubview(_ subview: View, andConstraints misterFusions: [MisterFusion]) -> [NSLayoutConstraint] {
         addSubview(subview)
         subview.translatesAutoresizingMaskIntoConstraints = false
-        return addLayoutConstraints(misterFusions)
+        return _addLayoutConstraints(misterFusions)
     }
-    
-    @discardableResult
-    public func addLayoutSubview(_ subview: UIView, andConstraints misterFusions: MisterFusion...) -> [NSLayoutConstraint] {
-        return addLayoutSubview(subview, andConstraints: misterFusions)
-    }
+}
 
+#if os(iOS) || os(tvOS)
+extension View {
     //MARK: - insertSubview(_ at:_)
-    @objc(insertLayoutSubview:atIndex:andConstraint:)
-    @discardableResult
-    public func insertLayoutSubview(_ subview: UIView, at index: Int, andConstraint misterFusion: MisterFusion) -> NSLayoutConstraint? {
+    func _insertLayoutSubview(_ subview: View, at index: Int, andConstraint misterFusion: MisterFusion) -> NSLayoutConstraint? {
         insertSubview(subview, at: index)
         subview.translatesAutoresizingMaskIntoConstraints = false
-        return addLayoutConstraint(misterFusion)
+        return _addLayoutConstraint(misterFusion)
     }
     
-    @objc(insertLayoutSubview:atIndex:andConstraints:)
-    @discardableResult
-    public func insertLayoutSubview(_ subview: UIView, at index: Int, andConstraints misterFusions: [MisterFusion]) -> [NSLayoutConstraint] {
+    func _insertLayoutSubview(_ subview: View, at index: Int, andConstraints misterFusions: [MisterFusion]) -> [NSLayoutConstraint] {
         insertSubview(subview, at: index)
         subview.translatesAutoresizingMaskIntoConstraints = false
-        return addLayoutConstraints(misterFusions)
-    }
-    
-    @discardableResult
-    public func insertLayoutSubview(_ subview: UIView, at index: Int, andConstraints misterFusions: MisterFusion...) -> [NSLayoutConstraint] {
-        return insertLayoutSubview(subview, at: index, andConstraints: misterFusions)
+        return _addLayoutConstraints(misterFusions)
     }
 
     //MARK: - insertSubview(_ belowSubview:_)
-    @discardableResult
-    public func insertLayoutSubview(_ subview: UIView, belowSubview siblingSubview: UIView, andConstraint misterFusion: MisterFusion) -> NSLayoutConstraint? {
+    func _insertLayoutSubview(_ subview: View, belowSubview siblingSubview: View, andConstraint misterFusion: MisterFusion) -> NSLayoutConstraint? {
         insertSubview(subview, belowSubview: siblingSubview)
         subview.translatesAutoresizingMaskIntoConstraints = false
-        return addLayoutConstraint(misterFusion)
+        return _addLayoutConstraint(misterFusion)
     }
     
-    @discardableResult
-    public func insertLayoutSubview(_ subview: UIView, belowSubview siblingSubview: UIView, andConstraints misterFusions: [MisterFusion]) -> [NSLayoutConstraint] {
+    func _insertLayoutSubview(_ subview: View, belowSubview siblingSubview: View, andConstraints misterFusions: [MisterFusion]) -> [NSLayoutConstraint] {
         insertSubview(subview, belowSubview: siblingSubview)
         subview.translatesAutoresizingMaskIntoConstraints = false
-        return addLayoutConstraints(misterFusions)
-    }
-    
-    @discardableResult
-    public func insertLayoutSubview(_ subview: UIView, belowSubview siblingSubview: UIView, andConstraints misterFusions: MisterFusion...) -> [NSLayoutConstraint] {
-        return insertLayoutSubview(subview, belowSubview: siblingSubview, andConstraints: misterFusions)
+        return _addLayoutConstraints(misterFusions)
     }
 
     //MARK: - insertSubview(_ aboveSubview:_)
-    @discardableResult
-    public func insertLayoutSubview(_ subview: UIView, aboveSubview siblingSubview: UIView, andConstraint misterFusion: MisterFusion) -> NSLayoutConstraint? {
+    func _insertLayoutSubview(_ subview: View, aboveSubview siblingSubview: View, andConstraint misterFusion: MisterFusion) -> NSLayoutConstraint? {
         insertSubview(subview, aboveSubview: siblingSubview)
         subview.translatesAutoresizingMaskIntoConstraints = false
-        return addLayoutConstraint(misterFusion)
+        return _addLayoutConstraint(misterFusion)
     }
-    
-    @discardableResult
-    public func insertLayoutSubview(_ subview: UIView, aboveSubview siblingSubview: UIView, andConstraints misterFusions: [MisterFusion]) -> [NSLayoutConstraint] {
+
+    func _insertLayoutSubview(_ subview: View, aboveSubview siblingSubview: View, andConstraints misterFusions: [MisterFusion]) -> [NSLayoutConstraint] {
         insertSubview(subview, aboveSubview: siblingSubview)
         subview.translatesAutoresizingMaskIntoConstraints = false
-        return addLayoutConstraints(misterFusions)
-    }
-    
-    @discardableResult
-    public func insertLayoutSubview(_ subview: UIView, aboveSubview siblingSubview: UIView, andConstraints misterFusions: MisterFusion...) -> [NSLayoutConstraint] {
-        return insertLayoutSubview(subview, aboveSubview: siblingSubview, andConstraints: misterFusions)
+        return _addLayoutConstraints(misterFusions)
     }
 }
+#endif

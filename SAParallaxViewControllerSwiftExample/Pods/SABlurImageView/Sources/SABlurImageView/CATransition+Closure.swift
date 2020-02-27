@@ -6,7 +6,6 @@
 //  Copyright (c) 2015年 鈴木大貴. All rights reserved.
 //
 
-import UIKit
 import QuartzCore
 
 extension CATransaction {

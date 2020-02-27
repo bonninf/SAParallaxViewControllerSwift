@@ -4,5 +4,8 @@ platform :ios, '8.0'
 use_frameworks!
 
 target 'SAParallaxViewControllerSwiftExample' do
+  
+  pod 'SABlurImageView', :git => 'https://github.com/bonninf/SABlurImageView.git', :commit => '65a443020206d9ba2b33c57bc64438a23b665036'
+  
 pod 'SAParallaxViewControllerSwift', :path => '../'
 end

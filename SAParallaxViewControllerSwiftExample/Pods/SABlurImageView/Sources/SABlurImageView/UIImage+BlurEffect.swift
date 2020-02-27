@@ -6,26 +6,56 @@
 //  Copyright (c) 2015年 鈴木大貴. All rights reserved.
 //
 
+#if os(iOS) || os(tvOS)
 import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
+
 import QuartzCore
 import Accelerate
 
-extension UIImage {
-    class func blurEffect(_ cgImage: CGImage, boxSize: CGFloat) -> UIImage! {
-        return UIImage(cgImage: cgImage.blurEffect(boxSize))
+extension Image {
+    #if os(iOS) || os(tvOS)
+    class func blurEffect(_ cgImage: CGImage, boxSize: CGFloat) -> Image? {
+        return UIImage(cgImage: (cgImage.blurEffect(boxSize) ?? cgImage))
+    }
+    #elseif os(macOS)
+    class func blurEffect(_ cgImage: CGImage, boxSize: CGFloat, size: CGSize) -> Image? {
+        return NSImage(cgImage: (cgImage.blurEffect(boxSize) ?? cgImage), size: size)
+    }
+    #endif
+    
+    func blurEffect(_ boxSize: CGFloat) -> Image? {
+        guard let imageRef = bluredCGImage(boxSize) else { return nil }
+        #if os(iOS) || os(tvOS)
+        return UIImage(cgImage: imageRef)
+        #elseif os(macOS)
+        return NSImage(cgImage:  imageRef, size: size)
+        #endif
     }
     
-    func blurEffect(_ boxSize: CGFloat) -> UIImage! {
-        return UIImage(cgImage: bluredCGImage(boxSize))
+    func bluredCGImage(_ boxSize: CGFloat) -> CGImage? {
+        #if os(iOS) || os(tvOS)
+        return cgImage?.blurEffect(boxSize)
+        #elseif os(macOS)
+        var imageRect = NSRect(x: 0, y: 0, width: size.width, height: size.height)
+        return cgImage(forProposedRect: &imageRect, context: nil, hints: nil)?.blurEffect(boxSize)
+        #endif
     }
-    
-    func bluredCGImage(_ boxSize: CGFloat) -> CGImage! {
-        return cgImage!.blurEffect(boxSize)
+
+    func toCGImage() -> CGImage? {
+        #if os(iOS) || os(tvOS)
+        return cgImage
+        #elseif os(macOS)
+        var imageRect = NSRect(x: 0, y: 0, width: size.width, height: size.height)
+        return cgImage(forProposedRect: &imageRect, context: nil, hints: nil)
+        #endif
     }
 }
 
 extension CGImage {
-    func blurEffect(_ boxSize: CGFloat) -> CGImage! {
+    func blurEffect(_ boxSize: CGFloat) -> CGImage? {
         
         let boxSize = boxSize - (boxSize.truncatingRemainder(dividingBy: 2)) + 1
         
